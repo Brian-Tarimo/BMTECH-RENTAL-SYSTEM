@@ -21,28 +21,52 @@ function Login() {
       [e.target.name]: e.target.value,
     }));
   };
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-  
-    setLoading(true);
-  
-    // 🔥 FAKE USER (NO BACKEND LOGIN)
-    const demoUser = {
-      id: "demo123",
-      name: "Demo User",
-      role: "Super Admin",
-      status: "Active",
-    };
-  
-    const demoToken = "demo-token-123";
-  
-    login(demoUser, demoToken);
-  
-    navigate("/dashboard");
-  
-    setLoading(false);
-  };
 
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  setLoading(true);
+  setError("");
+
+  try {
+    const response = await API.post("/auth/login", formData);
+
+    const { user, token } = response.data;
+
+    login(user, token);
+
+    switch (user.role) {
+      case "Super Admin":
+      case "Landlord":
+        navigate("/dashboard");
+        break;
+
+      case "Tenant":
+        navigate("/tenant-dashboard");
+        break;
+
+      case "Accountant":
+        navigate("/payments");
+        break;
+
+      case "Caretaker":
+        navigate("/maintenance");
+        break;
+
+      default:
+        navigate("/dashboard");
+    }
+  } catch (err) {
+    console.log("LOGIN ERROR:", err);
+
+    setError(
+      err?.response?.data?.message ||
+      "Login failed. Please try again."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
 
