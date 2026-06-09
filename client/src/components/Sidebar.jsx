@@ -25,7 +25,19 @@ function Sidebar() {
   const user = JSON.parse(localStorage.getItem("user"));
   const location = useLocation();
 
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => {
+    return localStorage.getItem("sidebarCollapsed") === "true";
+  });
+  
+  useEffect(() => {
+    localStorage.setItem("sidebarCollapsed", collapsed);
+  
+    document.documentElement.style.setProperty(
+      "--sidebar-width",
+      collapsed ? "80px" : "288px"
+    );
+  }, [collapsed]);
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [stats, setStats] = useState({});
@@ -50,6 +62,13 @@ function Sidebar() {
     const interval = setInterval(fetchStats, 8000);
 
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--sidebar-width",
+      collapsed ? "80px" : "288px"
+    );
   }, []);
 
   const menu = [
