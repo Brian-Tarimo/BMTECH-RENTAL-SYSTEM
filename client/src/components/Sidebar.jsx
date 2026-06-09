@@ -52,62 +52,24 @@ function Sidebar() {
     return () => clearInterval(interval);
   }, []);
 
-  // MENU
   const menu = [
-
     { name: "Dashboard", path: "/", icon: <FaHome /> },
-
     { name: "Apartments", path: "/apartments", icon: <FaBuilding /> },
-
     { name: "Units", path: "/units", icon: <FaBuilding /> },
-
-    {
-      name: "Tenants",
-      path: "/tenants",
-      icon: <FaUsers />,
-      badge: stats.pendingTenants || 0
-    },
-
+    { name: "Tenants", path: "/tenants", icon: <FaUsers />, badge: stats.pendingTenants || 0 },
     { name: "Billing", path: "/billing", icon: <FaFileInvoiceDollar /> },
-
     { name: "Payments", path: "/payments", icon: <FaMoneyBill /> },
-
     { name: "Maintenance", path: "/maintenance", icon: <FaTools /> },
-
     { name: "Reports", path: "/reports", icon: <FaChartBar /> },
-
     { name: "Expenses", path: "/expenses", icon: <FaWallet /> },
-
-    // ANALYTICS
     { name: "Insights", path: "/insights", icon: <FaChartPie /> },
-
     { name: "Forecast", path: "/forecast", icon: <FaChartLine /> },
 
-    // ADMIN ONLY
-    {
-      name: "Admin Approval",
-      path: "/admin",
-      icon: <FaUserShield />,
-      adminOnly: true,
-      badge: stats.pendingTenants || 0
-    },
-
-    {
-      name: "User Management",
-      path: "/admin/users",
-      icon: <FaUsers />,
-      adminOnly: true
-    },
-
-    {
-      name: "System Settings",
-      path: "/settings",
-      icon: <FaCogs />,
-      adminOnly: true
-    },
+    { name: "Admin Approval", path: "/admin", icon: <FaUserShield />, adminOnly: true, badge: stats.pendingTenants || 0 },
+    { name: "User Management", path: "/admin/users", icon: <FaUsers />, adminOnly: true },
+    { name: "System Settings", path: "/settings", icon: <FaCogs />, adminOnly: true },
 
     { name: "Notifications", path: "/notifications", icon: <FaBell /> },
-
   ];
 
   const filteredMenu = menu.filter(item =>
@@ -117,18 +79,18 @@ function Sidebar() {
   return (
     <>
 
-      {/* MOBILE BUTTON */}
+      {/* MOBILE TOGGLE BUTTON */}
       <button
-        className="md:hidden fixed top-4 left-4 z-50 bg-slate-900 text-white p-2 rounded-lg"
-        onClick={() => setMobileOpen(!mobileOpen)}
+        className="md:hidden fixed top-4 left-4 z-50 bg-slate-900 text-white p-3 rounded-lg shadow-lg"
+        onClick={() => setMobileOpen(true)}
       >
         <FaBars />
       </button>
 
-      {/* OVERLAY */}
+      {/* MOBILE OVERLAY */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-30 md:hidden"
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -136,11 +98,15 @@ function Sidebar() {
       {/* SIDEBAR */}
       <div
         className={`
-          fixed top-0 left-0 h-full bg-slate-900 text-white z-40
-          transition-all duration-300 border-r border-slate-800
+          fixed top-0 left-0 h-full bg-slate-900 text-white z-50
+          border-r border-slate-800
+          flex flex-col
+
+          transition-all duration-300 ease-in-out
 
           ${collapsed ? "w-20" : "w-72"}
 
+          md:translate-x-0
           ${mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
         `}
       >
@@ -149,17 +115,30 @@ function Sidebar() {
         <div className="flex items-center justify-between p-4 border-b border-slate-800">
 
           {!collapsed && (
-            <h1 className="text-2xl font-bold text-emerald-400">
+            <h1 className="text-2xl font-bold text-emerald-400 tracking-wide">
               BMTECH
             </h1>
           )}
 
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="text-gray-300 hover:text-white"
-          >
-            ⟷
-          </button>
+          <div className="flex items-center gap-2">
+
+            {/* COLLAPSE BTN (DESKTOP) */}
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              className="hidden md:block text-gray-300 hover:text-white"
+            >
+              ⟷
+            </button>
+
+            {/* CLOSE BTN (MOBILE) */}
+            <button
+              onClick={() => setMobileOpen(false)}
+              className="md:hidden text-gray-300 text-xl"
+            >
+              ✕
+            </button>
+
+          </div>
 
         </div>
 
@@ -179,7 +158,7 @@ function Sidebar() {
         )}
 
         {/* MENU */}
-        <nav className="flex flex-col gap-1 p-2">
+        <nav className="flex-1 overflow-y-auto px-2 pb-4 space-y-1">
 
           {filteredMenu.map((item, i) => {
 
@@ -191,12 +170,20 @@ function Sidebar() {
               <Link
                 key={i}
                 to={item.path}
-                className={`relative flex items-center justify-between px-3 py-2 rounded-lg transition ${isActive(item.path)}`}
+                onClick={() => setMobileOpen(false)}
+                className={`
+                  flex items-center justify-between
+                  px-3 py-2 rounded-lg
+                  transition-all duration-200
+                  ${isActive(item.path)}
+                `}
               >
 
                 <div className="flex items-center gap-3">
 
-                  {item.icon}
+                  <span className="text-lg">
+                    {item.icon}
+                  </span>
 
                   {!collapsed && (
                     <span className="text-sm font-medium">
@@ -208,17 +195,23 @@ function Sidebar() {
 
                 {/* BADGE */}
                 {!collapsed && item.badge > 0 && (
-                  <span className="bg-red-500 text-xs px-2 py-1 rounded-full">
+                  <span className="bg-red-500 text-xs px-2 py-1 rounded-full animate-pulse">
                     {item.badge}
                   </span>
                 )}
 
               </Link>
             );
-
           })}
 
         </nav>
+
+        {/* FOOTER */}
+        {!collapsed && (
+          <div className="p-3 border-t border-slate-800 text-xs text-gray-400">
+            Logged in as: {user?.role}
+          </div>
+        )}
 
       </div>
     </>
