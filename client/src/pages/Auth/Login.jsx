@@ -21,54 +21,26 @@ function Login() {
       [e.target.name]: e.target.value,
     }));
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     setLoading(true);
-    setError("");
-
-    try {
-      // ✅ IMPORTANT: This MUST go to /api/auth/login via api.js baseURL
-      const response = await API.post("/auth/login", formData);
-
-      const user = response.data.user;
-      const token = response.data.token;
-
-      console.log("LOGIN SUCCESS:", response.data);
-
-      // 🚨 Safety check
-      if (user.role === "Tenant" && user.status !== "Active") {
-        setError("Your account is pending admin approval");
-        return;
-      }
-
-      // Save auth
-      login(user, token);
-
-      const role = user.role?.trim();
-
-      // Redirect by role
-      if (role === "Super Admin" || role === "Landlord") {
-        navigate("/dashboard");
-      } else if (role === "Accountant") {
-        navigate("/payments");
-      } else if (role === "Caretaker") {
-        navigate("/maintenance");
-      } else if (role === "Tenant") {
-        navigate("/tenant-dashboard");
-      } else {
-        navigate("/dashboard");
-      }
-    } catch (error) {
-      console.log("LOGIN ERROR:", error);
-
-      setError(
-        error?.response?.data?.message ||
-          "Invalid credentials or account not approved"
-      );
-    } finally {
-      setLoading(false);
-    }
+  
+    // 🔥 FAKE USER (NO BACKEND LOGIN)
+    const demoUser = {
+      id: "demo123",
+      name: "Demo User",
+      role: "Super Admin",
+      status: "Active",
+    };
+  
+    const demoToken = "demo-token-123";
+  
+    login(demoUser, demoToken);
+  
+    navigate("/dashboard");
+  
+    setLoading(false);
   };
 
   return (
